@@ -39,6 +39,7 @@ migrate = Migrate()
 def create_app(config=None):
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nutrition_tracker.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food_nutrition.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     db.init_app(app)
@@ -47,10 +48,10 @@ def create_app(config=None):
     from app.routes.user_routes import user_bp
     from app.routes.meal_routes import meal_bp
     from app.routes.food_item_routes import food_item_bp
-    
+    from app.routes.documentation import docs_bp
     app.register_blueprint(user_bp, url_prefix='/api/users')
     app.register_blueprint(meal_bp, url_prefix='/api/meals')
     app.register_blueprint(food_item_bp, url_prefix='/api/food-items')
-    
+    app.register_blueprint(docs_bp)
     
     return app
