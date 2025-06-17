@@ -1,6 +1,6 @@
 # routes/food_api.py
 from flask import Blueprint, jsonify, request, current_app
-from models.food_database import db, FoodItem, Nutrient, NutrientValue, FoodCategory, UserCustomFood
+from app.models.food_database import db, FoodItem, Nutrient, NutrientValue, FoodCategory, UserCustomFood
 from sqlalchemy import or_, desc, func
 import math
 
