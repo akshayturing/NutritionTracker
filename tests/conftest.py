@@ -88,13 +88,18 @@ def app():
     # Create a temporary file to isolate the database for each test
     db_fd, db_path = tempfile.mkstemp()
     
-    app = create_app()
+    app = create_app('testing')
     app.config.update({
         'TESTING': True,
         'SQLALCHEMY_DATABASE_URI': f'sqlite:///{db_path}',
         'SQLALCHEMY_TRACK_MODIFICATIONS': False,
     })
-    
+    # Basic configuration for testing
+    app.config['TESTING'] = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['JWT_SECRET_KEY'] = 'test-secret-key'
+
     # Create the database and load test data
     with app.app_context():
         db.create_all()
