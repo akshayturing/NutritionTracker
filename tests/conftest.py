@@ -91,19 +91,16 @@ def app():
     app = create_app('testing')
     app.config.update({
         'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': f'sqlite:///{db_path}',
+        'SQLALCHEMY_DATABASE_URI': f'sqlite:///nutrition_tracker.db',
         'SQLALCHEMY_TRACK_MODIFICATIONS': False,
     })
-    # Basic configuration for testing
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['JWT_SECRET_KEY'] = 'test-secret-key'
+    # # Basic configuration for testing
+    # app.config['JWT_SECRET_KEY'] = 'test-secret-key'
 
     # Create the database and load test data
     with app.app_context():
         db.create_all()
-        _populate_test_data()
+        # _populate_test_data()
     
     yield app
     

@@ -63,7 +63,7 @@ def create_app(config_name='default'):
     from app.routes.food_item_routes import food_item_bp
     from app.routes.documentation import docs_bp
     from app.routes.food_api import food_api
-
+    from app.api import api_bp
     app.register_blueprint(user_bp, url_prefix='/api/users')
     app.register_blueprint(meal_bp, url_prefix='/api/meals')
     app.register_blueprint(food_item_bp, url_prefix='/api/food-items')
