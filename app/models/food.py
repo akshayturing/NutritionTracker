@@ -1,13 +1,12 @@
-from flask_sqlalchemy import SQLAlchemy
+# models/food.py
+from app import db
 from datetime import datetime
-from app.models.food import food_category_association
-db = SQLAlchemy()
 
-# # Association table for food categories
-# food_category_association = db.Table('food_category_association',
-#     db.Column('food_id', db.Integer, db.ForeignKey('food_items.id'), primary_key=True),
-#     db.Column('category_id', db.Integer, db.ForeignKey('food_categories.id'), primary_key=True)
-# )
+# Association table for food categories
+food_category_association = db.Table('food_category_association',
+    db.Column('food_id', db.Integer, db.ForeignKey('food_items.id'), primary_key=True),
+    db.Column('category_id', db.Integer, db.ForeignKey('food_categories.id'), primary_key=True)
+)
 
 class FoodItem(db.Model):
     """Model for food items in the database"""
@@ -36,6 +35,8 @@ class FoodItem(db.Model):
     nutrients = db.relationship('NutrientValue', back_populates='food', cascade='all, delete-orphan')
     categories = db.relationship('FoodCategory', secondary=food_category_association, 
                                 back_populates='foods')
+    # Define relationship to UserCustomFood but defer the implementation
+    custom_food_entries = db.relationship('UserCustomFood', back_populates='food')
     
     def __repr__(self):
         return f'<FoodItem {self.name}>'
@@ -113,21 +114,3 @@ class FoodCategory(db.Model):
                            
     def __repr__(self):
         return f'<FoodCategory {self.name}>'
-
-class UserCustomFood(db.Model):
-    """Model for user-created custom foods"""
-    __tablename__ = 'user_custom_foods'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    food_id = db.Column(db.Integer, db.ForeignKey('food_items.id'))
-    
-    # If user created this food or just modified it
-    is_created = db.Column(db.Boolean, default=True)
-    
-    # Relationships
-    food = db.relationship('FoodItem')
-    user = db.relationship('User')
-    
-    def __repr__(self):
-        return f'<UserCustomFood {self.user_id} - {self.food.name}>'

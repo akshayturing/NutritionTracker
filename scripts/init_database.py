@@ -224,23 +224,23 @@ def create_sample_foods():
     db.session.commit()
     print(f"Created {len(sample_foods)} sample foods")
 
-def init_database(app):
-    """Initialize the database with default data"""
-    with app.app_context():
-        # Create tables
-        db.create_all()
+# def init_database(app):
+#     """Initialize the database with default data"""
+#     with app.app_context():
+#         # Create tables
+#         db.create_all()
         
-        # Check if database is already populated
-        if Nutrient.query.count() == 0:
-            create_nutrients()
+#         # Check if database is already populated
+#         if Nutrient.query.count() == 0:
+#             create_nutrients()
         
-        if FoodCategory.query.count() == 0:
-            create_categories()
+#         if FoodCategory.query.count() == 0:
+#             create_categories()
         
-        if FoodItem.query.count() == 0:
-            create_sample_foods()
+#         if FoodItem.query.count() == 0:
+#             create_sample_foods()
             
-        print("Database initialized successfully!")
+#         print("Database initialized successfully!")
 
 def import_from_csv(app, csv_file):
     """Import food data from a CSV file"""
@@ -341,3 +341,41 @@ if __name__ == '__main__':
     csv_path = os.environ.get('FOOD_CSV_PATH')
     if csv_path and os.path.exists(csv_path):
         import_from_csv(app, csv_path)
+
+
+from app.models import db, FoodItem, Nutrient, NutrientValue, FoodCategory, User
+from flask import Flask
+
+def create_sample_user():
+    """Create a sample user for testing"""
+    # Check if user already exists
+    if User.query.filter_by(username='testuser').first() is None:
+        user = User(
+            username='testuser',
+            email='test@example.com',
+            password_hash='sample_hashed_password'  # In a real app, use proper password hashing
+        )
+        db.session.add(user)
+        db.session.commit()
+        print("Created sample user")
+
+def init_database(app):
+    """Initialize the database with default data"""
+    with app.app_context():
+        # Create tables
+        db.create_all()
+        
+        # Check if database is already populated
+        if Nutrient.query.count() == 0:
+            create_nutrients()
+        
+        if FoodCategory.query.count() == 0:
+            create_categories()
+        
+        if FoodItem.query.count() == 0:
+            create_sample_foods()
+        
+        # Create sample user if needed
+        create_sample_user()
+            
+        print("Database initialized successfully!")
