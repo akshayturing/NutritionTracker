@@ -63,17 +63,22 @@ def create_app(config_name='default'):
     from app.routes.food_item_routes import food_item_bp
     from app.routes.documentation import docs_bp
     from app.routes.food_api import food_api
+
     app.register_blueprint(user_bp, url_prefix='/api/users')
     app.register_blueprint(meal_bp, url_prefix='/api/meals')
     app.register_blueprint(food_item_bp, url_prefix='/api/food-items')
     app.register_blueprint(docs_bp)
     app.register_blueprint(food_api)
 
+    # Register blueprints
     from app.auth import auth_bp
+    from app.api import api_bp
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(api_bp, url_prefix='/api')
     
     # Other blueprints
-    from app.api import api_bp
-    app.register_blueprint(api_bp, url_prefix='/api')
+    from app.auth.jwt_callbacks import register_jwt_callbacks
+    register_jwt_callbacks(jwt)
+    
     
     return app
