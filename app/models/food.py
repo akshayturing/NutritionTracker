@@ -26,7 +26,7 @@ class FoodItem(db.Model):
     source = db.Column(db.String(255), default='internal')
     source_id = db.Column(db.String(255))  # External ID if imported
     verified = db.Column(db.Boolean, default=False)
-    
+    meal_items = db.relationship('MealItem', back_populates='food')
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

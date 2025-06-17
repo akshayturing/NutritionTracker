@@ -1,7 +1,7 @@
 # tests/test_models.py
 import pytest
 from datetime import datetime, date, time
-from app.models import User, FoodItem, Meal
+from app.models import User, FoodItem, meal
 
 def ghjk():
     pass

@@ -38,7 +38,7 @@ migrate = Migrate()
 
 def create_app(config=None):
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nutrition_tracker.db'
+    #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nutrition_tracker.db'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food_nutrition.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     

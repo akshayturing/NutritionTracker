@@ -44,5 +44,7 @@ class User(db.Model):
     custom_foods = db.relationship('UserCustomFood', back_populates='user',
                                   cascade='all, delete-orphan')
     
+    # Inside the User class, add:
+    meals = db.relationship('Meal', back_populates='user', cascade='all, delete-orphan')
     def __repr__(self):
         return f'<User {self.username}>'

@@ -2,7 +2,7 @@
 import sqlite3
 import pytest
 from app import db
-from app.models import User, Meal, FoodItem
+from app.models import User, meal, FoodItem
 
 # def test_database_exists(app):
 #     """Test that the database file is created."""
