@@ -31,20 +31,33 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
+from datetime import timedelta
+import os
 
 db = SQLAlchemy()
-migrate = Migrate()
+jwt = JWTManager()
 
-def create_app(config=None):
+migrate = Migrate()
+def create_app(config_name='default'):
     app = Flask(__name__)
-    #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///nutrition_tracker.db'
+    
+    # Load configuration
+    app.config.from_object('app.config.config')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food_nutrition.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # Configure JWT settings
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'dev-secret-key')
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
+    app.config['JWT_BLACKLIST_ENABLED'] = True
+    app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
     
+    # Initialize extensions
     db.init_app(app)
+    jwt.init_app(app)
     migrate.init_app(app, db)
-    
+    # Register blueprints
     from app.routes.user_routes import user_bp
     from app.routes.meal_routes import meal_bp
     from app.routes.food_item_routes import food_item_bp
@@ -55,4 +68,12 @@ def create_app(config=None):
     app.register_blueprint(food_item_bp, url_prefix='/api/food-items')
     app.register_blueprint(docs_bp)
     app.register_blueprint(food_api)
+
+    from app.auth import auth_bp
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    
+    # Other blueprints
+    from app.api import api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
+    
     return app

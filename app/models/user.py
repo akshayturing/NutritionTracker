@@ -29,22 +29,40 @@
 #             'created_at': self.created_at.isoformat() if self.created_at else None
 #         }
 
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 from app.models.food_database import db
+
 class User(db.Model):
-    """User model for authentication and personalization"""
     __tablename__ = 'users'
     
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    email = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(128), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    
+    # Relationships (if needed)
+    meals = db.relationship('Meal', backref='user', lazy=True, cascade='all, delete-orphan')
     
     # Define relationship but defer the foreign key to avoid circular reference
     custom_foods = db.relationship('UserCustomFood', back_populates='user',
                                   cascade='all, delete-orphan')
+    def __init__(self, email, password):
+        self.email = email
+        self.password = password  # This will use the password.setter method
     
-    # Inside the User class, add:
-    meals = db.relationship('Meal', back_populates='user', cascade='all, delete-orphan')
+    @property
+    def password(self):
+        raise AttributeError('Password is not a readable attribute')
+    
+    @password.setter
+    def password(self, password):
+        self.password_hash = generate_password_hash(password)
+    
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f'<User {self.email}>'
