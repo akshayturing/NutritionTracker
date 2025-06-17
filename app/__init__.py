@@ -38,7 +38,7 @@ import os
 db = SQLAlchemy()
 jwt = JWTManager()
 
-migrate = Migrate()
+# migrate = Migrate()
 def create_app(config_name='default'):
     app = Flask(__name__)
     
@@ -56,7 +56,7 @@ def create_app(config_name='default'):
     # Initialize extensions
     db.init_app(app)
     jwt.init_app(app)
-    migrate.init_app(app, db)
+    # migrate.init_app(app, db)
     # Register blueprints
     from app.routes.user_routes import user_bp
     from app.routes.meal_routes import meal_bp
