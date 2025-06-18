@@ -88,6 +88,16 @@
     
 #     return jsonify({'message': 'Successfully logged out'}), 200
 
+# app/meals/routes.py
+from flask import request, jsonify, g
+from sqlalchemy import desc
+from datetime import datetime, timedelta
+
+from app.models import db, Meal
+from app.auth.jwt_callbacks import jwt_required  # Updated import
+from app.meals import meals_bp
+from app.meals.utils import validate_meal_data
+
 """Authentication routes for Nutrition Tracking App."""
 from flask import request, jsonify
 from flask_jwt_extended import (
