@@ -9,7 +9,7 @@ from app.models.food_database import db
 from app.models.user import User
 from app.models.food import FoodItem, Nutrient, NutrientValue, FoodCategory, food_category_association
 from app.models.custom_food import UserCustomFood
-
+from app.models.meal import Meal
 # This ensures all models are imported when you import from models
 __all__ = [
     'db', 
@@ -19,5 +19,5 @@ __all__ = [
     'NutrientValue', 
     'FoodCategory',
     'UserCustomFood',
-    'food_category_association'
+    'food_category_association','Meal'
 ]
