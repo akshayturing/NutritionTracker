@@ -128,28 +128,28 @@ def get_meals():
         'offset': offset
     })
 
-@meals_bp.route('/<int:meal_id>', methods=['GET'])
-@jwt_required
-def get_meal(meal_id):
-    """
-    Get a specific meal by ID
-    """
-    user_id = g.current_user.id
+# @meals_bp.route('/<int:meal_id>', methods=['GET'])
+# @jwt_required
+# def get_meal(meal_id):
+#     """
+#     Get a specific meal by ID
+#     """
+#     user_id = g.current_user.id
     
-    # Get meal and ensure it belongs to the current user
-    meal = Meal.query.filter_by(id=meal_id, user_id=user_id).first()
+#     # Get meal and ensure it belongs to the current user
+#     meal = Meal.query.filter_by(id=meal_id, user_id=user_id).first()
     
-    if not meal:
-        return jsonify({'error': 'Meal not found or access denied'}), 404
+#     if not meal:
+#         return jsonify({'error': 'Meal not found or access denied'}), 404
     
-    return jsonify({
-        'id': meal.id,
-        'meal_name': meal.meal_name,
-        'portion_size': meal.portion_size,
-        'calories': meal.calories,
-        'macronutrients': meal.macronutrients,
-        'timestamp': meal.timestamp.isoformat()
-    })
+#     return jsonify({
+#         'id': meal.id,
+#         'meal_name': meal.meal_name,
+#         'portion_size': meal.portion_size,
+#         'calories': meal.calories,
+#         'macronutrients': meal.macronutrients,
+#         'timestamp': meal.timestamp.isoformat()
+#     })
 
 @meals_bp.route('/summary', methods=['GET'])
 @jwt_required
@@ -198,4 +198,29 @@ def get_meal_summary():
     return jsonify({
         'summary': summary_list,
         'days': days
+    })
+
+@meals_bp.route('/<int:meal_id>', methods=['GET'])
+@jwt_required
+def get_meal(meal_id):
+    """
+    Get a specific meal by ID
+    """
+    user_id = g.current_user.id
+    
+    # Get meal and ensure it belongs to the current user
+    meal = Meal.query.filter_by(id=meal_id, user_id=user_id).first()
+    
+    if not meal:
+        return jsonify({'error': 'Meal not found or access denied'}), 404
+    
+    # Create a response with all data eagerly loaded
+    return jsonify({
+        'id': meal.id,
+        'meal_name': meal.meal_name,
+        'portion_size': meal.portion_size,
+        'calories': meal.calories,
+        'macronutrients': meal.macronutrients,
+        'timestamp': meal.timestamp.isoformat(),
+        'user_id': meal.user_id  # Include user_id instead of using relationship
     })
