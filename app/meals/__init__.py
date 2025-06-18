@@ -1,8 +1,8 @@
 # app/meals/__init__.py
 from flask import Blueprint
 
-# Create a blueprint for meal tracking endpoints
-meals_bp = Blueprint('meals', __name__, url_prefix='/api/meals')
+# Create a blueprint with a more specific name to avoid conflicts
+meals_bp = Blueprint('nutrition_meals', __name__, url_prefix='/api/meals')
 
 # Import routes after blueprint is created
 from app.meals.routes import *

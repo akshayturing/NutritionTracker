@@ -77,9 +77,9 @@ def create_app(config_name='default'):
     app.register_blueprint(api_bp, url_prefix='/api')
     from app.meals import register_meals_blueprint
     register_meals_blueprint(app)
-    # Other blueprints
-    from app.auth.jwt_callbacks import register_jwt_callbacks
-    register_jwt_callbacks(jwt)
+    # # Other blueprints
+    # from app.auth.jwt_callbacks import register_jwt_callbacks
+    # register_jwt_callbacks(jwt)
     
     
     return app

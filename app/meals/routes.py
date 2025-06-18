@@ -1,11 +1,20 @@
 # app/meals/routes.py
+# from flask import request, jsonify, g
+# from sqlalchemy import desc
+# from datetime import datetime, timedelta
+
+# from app.models import db, Meal
+# from app.auth.jwt_callbacks import jwt_required
+# from app.meals import meals_bp
+# from app.meals.utils import validate_meal_data
+
 from flask import request, jsonify, g
 from sqlalchemy import desc
 from datetime import datetime, timedelta
 
 from app.models import db, Meal
 from app.auth.jwt_callbacks import jwt_required
-from app.meals import meals_bp
+from app.meals import meals_bp  # This will now reference the nutrition_meals blueprint
 from app.meals.utils import validate_meal_data
 
 @meals_bp.route('/', methods=['POST'])
