@@ -1,12 +1,24 @@
+
+
 import requests
 import json
 import time
 from datetime import datetime, timedelta
 import random
 import unittest
+import os
+import sys
+
+# Add the project root directory to the Python path if needed
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Now imports from our application should work
+from app import create_app, db
+from app.config import TestingConfig
 
 class NutritionApiEndToEndTest(unittest.TestCase):
     """End-to-end test of the Nutrition Tracking API workflow"""
+    
     
     BASE_URL = "http://localhost:5000/api"  # Change this to your API URL
     

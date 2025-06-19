@@ -8,9 +8,18 @@ from app.models.user import User
 from app.models.meal import Meal
 from app.auth.jwt_callbacks import generate_token
 
+
+import unittest
+from datetime import datetime, timedelta
+import json
+from app import create_app, db
+from app.models.user import User
+from app.models.meal import Meal
+from app.auth.jwt_callbacks import generate_token
+
 class NutritionSummaryTestCase(unittest.TestCase):
     def setUp(self):
-        self.app = create_app('testing')
+        self.app = create_app('testing')  # This should now work correctly
         self.app_context = self.app.app_context()
         self.app_context.push()
         self.client = self.app.test_client()
