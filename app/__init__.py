@@ -126,7 +126,9 @@
 
 # app/__init__.py
 from flask import Flask
-
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
+db = SQLAlchemy()
 def create_app(config=None):
     app = Flask(__name__)
     
@@ -160,4 +162,7 @@ def create_app(config=None):
     from app.meals import register_meals_blueprint
     register_meals_blueprint(app)
     
+    from app.routes.nutrition import nutrition_bp
+    app.register_blueprint(nutrition_bp, url_prefix='/api/nutrition')
+
     return app
