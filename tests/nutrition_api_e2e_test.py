@@ -1,21 +1,10 @@
 
-
-import requests
-import json
-import time
-from datetime import datetime, timedelta
-import random
-import unittest
-import os
-import sys
-
-# Add the project root directory to the Python path if needed
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-# Now imports from our application should work
-from app import create_app, db
 from app.config import TestingConfig
-
+import json
+from datetime import datetime, timedelta
+import unittest
+from app import create_app, db
+    
 class NutritionApiEndToEndTest(unittest.TestCase):
     """End-to-end test of the Nutrition Tracking API workflow"""
     
@@ -127,75 +116,76 @@ class NutritionApiEndToEndTest(unittest.TestCase):
     ]
     
     def setUp(self):
-        """Set up test case - register user and get token"""
+        """Set up test environment"""
+        # Create Flask app with testing config
+        self.app = create_app('testing')
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        
+        # Get test client
+        self.client = self.app.test_client()
+        
+        # Create database tables
+        db.create_all()
+        
+        # Initialize test data
         self.auth_token = None
         self.user_id = None
-        self.food_item_ids = []
-        self.meal_ids = []
-        
-        # Register user
-        self.register_user()
-        
-        # Login to get auth token
-        self.login_user()
-        
-        # Set nutritional goals
-        self.set_nutritional_goals()
-        
-        # Create food items
-        self.create_food_items()
-        
-    def tearDown(self):
-        """Clean up after tests - delete created resources"""
-        if not self.auth_token:
-            return
-            
-        # Delete meals
-        for meal_id in self.meal_ids:
-            try:
-                self.delete_meal(meal_id)
-            except:
-                pass
-                
-        # Delete food items
-        for food_id in self.food_item_ids:
-            try:
-                self.delete_food_item(food_id)
-            except:
-                pass
-                
-        # Logout
-        self.logout_user()
+        # ...
     
-    # Helper methods for API calls
-    def api_request(self, method, endpoint, data=None, params=None, headers=None):
-        """Send request to API with auth token if available"""
-        url = f"{self.BASE_URL}/{endpoint}"
+    def tearDown(self):
+        """Clean up test environment"""
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
+    
+    def api_request(self, method, endpoint, data=None, headers=None):
+        """Make API request using Flask test client"""
+        url = f"/api/{endpoint}"
         
-        # Include auth token if available
-        if self.auth_token and headers is None:
-            headers = {"Authorization": f"Bearer {self.auth_token}"}
-        elif self.auth_token:
-            headers["Authorization"] = f"Bearer {self.auth_token}"
-            
-        # Make request based on method
+        # Add auth token if available
+        if headers is None:
+            headers = {}
+        if self.auth_token and 'Authorization' not in headers:
+            headers['Authorization'] = f"Bearer {self.auth_token}"
+        
+        # Create request based on method
         if method == "get":
-            response = requests.get(url, params=params, headers=headers)
+            response = self.client.get(url, headers=headers)
         elif method == "post":
-            response = requests.post(url, json=data, headers=headers)
+            response = self.client.post(
+                url, 
+                data=json.dumps(data) if data else None,
+                content_type='application/json',
+                headers=headers
+            )
         elif method == "put":
-            response = requests.put(url, json=data, headers=headers)
+            response = self.client.put(
+                url, 
+                data=json.dumps(data) if data else None,
+                content_type='application/json',
+                headers=headers
+            )
         elif method == "delete":
-            response = requests.delete(url, headers=headers)
-        else:
-            raise ValueError(f"Unsupported method: {method}")
-            
-        # Check for API error responses
-        if response.status_code >= 400:
-            print(f"API Error ({response.status_code}): {response.text}")
-            
-        return response
+            response = self.client.delete(url, headers=headers)
         
+        # Parse response data
+        try:
+            response_data = json.loads(response.data.decode('utf-8'))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            response_data = {}
+        
+        # Create response-like object to maintain compatibility with requests
+        class TestResponse:
+            def __init__(self, status_code, data):
+                self.status_code = status_code
+                self._data = data
+            
+            def json(self):
+                return self._data
+        
+        return TestResponse(response.status_code, response_data)
+
     def register_user(self):
         """Register a new user for testing"""
         print("\n1. Registering test user...")
