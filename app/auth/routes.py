@@ -89,7 +89,7 @@
 #     return jsonify({'message': 'Successfully logged out'}), 200
 
 # app/meals/routes.py
-from flask import request, jsonify, g
+from flask import request, jsonify, Blueprint
 from sqlalchemy import desc
 from datetime import datetime, timedelta
 
@@ -99,16 +99,17 @@ from app.meals import meals_bp
 from app.meals.utils import validate_meal_data
 
 """Authentication routes for Nutrition Tracking App."""
-from flask import request, jsonify
+from flask import request, jsonify,Blueprint
 from flask_jwt_extended import (
     create_access_token, create_refresh_token, 
     jwt_required, get_jwt_identity, get_jwt
 )
 from datetime import datetime, timezone
 from app import db
-from app.auth import auth_bp
 from app.models.user import User
 from app.models.token import TokenBlacklist
+
+auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():

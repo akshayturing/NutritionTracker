@@ -151,9 +151,7 @@ def create_app(config=None):
     from app.models import db
     db.init_app(app)
     
-    # Register blueprints
-    from app.auth import auth_bp
-    app.register_blueprint(auth_bp)
+   
     
     from app.api import api_bp
     app.register_blueprint(api_bp)
@@ -164,5 +162,8 @@ def create_app(config=None):
     
     from app.routes.nutrition import nutrition_bp
     app.register_blueprint(nutrition_bp, url_prefix='/api/nutrition')
+
+    from app.auth.routes import auth_bp
+    app.register_blueprint(auth_bp, url_prefix="/api/auth")
 
     return app
