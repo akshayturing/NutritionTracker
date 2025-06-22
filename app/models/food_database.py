@@ -114,20 +114,20 @@ class FoodCategory(db.Model):
     def __repr__(self):
         return f'<FoodCategory {self.name}>'
 
-class UserCustomFood(db.Model):
-    """Model for user-created custom foods"""
-    __tablename__ = 'user_custom_foods'
+# class UserCustomFood(db.Model):
+#     """Model for user-created custom foods"""
+#     __tablename__ = 'user_custom_foods'
     
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    food_id = db.Column(db.Integer, db.ForeignKey('food_items.id'))
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+#     food_id = db.Column(db.Integer, db.ForeignKey('food_items.id'))
     
-    # If user created this food or just modified it
-    is_created = db.Column(db.Boolean, default=True)
+#     # If user created this food or just modified it
+#     is_created = db.Column(db.Boolean, default=True)
     
-    # Relationships
-    food = db.relationship('FoodItem')
-    user = db.relationship('User')
+#     # Relationships
+#     food = db.relationship('FoodItem')
+#     user = db.relationship('User')
     
-    def __repr__(self):
-        return f'<UserCustomFood {self.user_id} - {self.food.name}>'
+#     def __repr__(self):
+#         return f'<UserCustomFood {self.user_id} - {self.food.name}>'

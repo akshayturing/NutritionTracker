@@ -5,7 +5,7 @@ from typing import Dict, Any, List, Optional, Tuple
 from sqlalchemy import func, and_
 from app.models.user import User
 from app.models.meal import Meal
-from app.models.food_item import FoodItem, MealFoodItem
+from NutritionTracker.app.models.fooditem import FoodItem, MealFoodItem
 
 def calculate_nutrition_summary(user_id: int, 
                                 start_date: Optional[datetime] = None,

@@ -65,7 +65,7 @@
 from sqlalchemy import Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship
 import json
-from app.models import db
+from app import db
 
 class FoodItem(db.Model):
     """Model for standard food items in the database"""
@@ -89,27 +89,27 @@ class FoodItem(db.Model):
         return f"<FoodItem {self.id}: {self.name}>"
 
 
-class UserCustomFood(db.Model):
-    """Model for user-created custom food items"""
-    __tablename__ = 'user_custom_foods'
+# class UserCustomFood(db.Model):
+#     """Model for user-created custom food items"""
+#     __tablename__ = 'user_custom_foods'
     
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    name = Column(String(100), nullable=False)
-    portion_size = Column(Float, nullable=False)  # in grams
-    calories = Column(Float, nullable=False)
-    _macronutrients = Column(String(255), nullable=False, default="{}")
+#     id = Column(Integer, primary_key=True)
+#     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+#     name = Column(String(100), nullable=False)
+#     portion_size = Column(Float, nullable=False)  # in grams
+#     calories = Column(Float, nullable=False)
+#     _macronutrients = Column(String(255), nullable=False, default="{}")
     
-    # Relationship to User
-    user = relationship('User', backref=db.backref('custom_foods', lazy=True))
+#     # Relationship to User
+#     user = relationship('User', backref=db.backref('custom_foods', lazy=True))
     
-    @property
-    def macronutrients(self):
-        return json.loads(self._macronutrients)
+#     @property
+#     def macronutrients(self):
+#         return json.loads(self._macronutrients)
     
-    @macronutrients.setter
-    def macronutrients(self, value):
-        self._macronutrients = json.dumps(value)
+#     @macronutrients.setter
+#     def macronutrients(self, value):
+#         self._macronutrients = json.dumps(value)
     
-    def __repr__(self):
-        return f"<UserCustomFood {self.id}: {self.name}>"
+#     def __repr__(self):
+#         return f"<UserCustomFood {self.id}: {self.name}>"
