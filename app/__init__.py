@@ -243,4 +243,6 @@ def create_app(config_name='default'):
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(nutrition_bp, url_prefix='/api/nutrition')
     
+
+
     return app

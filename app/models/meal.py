@@ -353,24 +353,37 @@ from datetime import datetime
 from sqlalchemy.ext.hybrid import hybrid_property
 
 class Meal(db.Model):
-    __tablename__ = 'meals'
+    """Association model between Meal and Food with portion information"""
+    __tablename__ = 'meal_foods'
     
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    meal_name = db.Column(db.String(100), nullable=False)
-    meal_type = db.Column(db.String(50))  # breakfast, lunch, dinner, snack
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
-    notes = db.Column(db.Text)
-    
-    # Nutritional totals
-    total_calories = db.Column(db.Float, default=0)
-    total_protein = db.Column(db.Float, default=0)
-    total_carbohydrates = db.Column(db.Float, default=0)
-    total_fat = db.Column(db.Float, default=0)
+    meal_id = db.Column(db.Integer, db.ForeignKey('meals.id'), nullable=False)
+    food_id = db.Column(db.Integer, db.ForeignKey('foods.id'), nullable=False)
+    portion_size = db.Column(db.Float, nullable=False, default=1.0)
+    portion_unit = db.Column(db.String(50), default='serving')  # e.g., cup, ounce, gram
     
     # Relationships
-    foods = db.relationship('MealFood', back_populates='meal', lazy='dynamic', cascade='all, delete-orphan')
-    user = db.relationship('User', back_populates='meals')
+    meal = db.relationship("Meal", back_populates="foods")
+    food = db.relationship("Food", back_populates="meal_foods")  # Changed from "meals" to "meal_foods"
+# class Meal(db.Model):
+#     __tablename__ = 'meals'
+    
+#     id = db.Column(db.Integer, primary_key=True)
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+#     meal_name = db.Column(db.String(100), nullable=False)
+#     meal_type = db.Column(db.String(50))  # breakfast, lunch, dinner, snack
+#     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+#     notes = db.Column(db.Text)
+    
+#     # Nutritional totals
+#     total_calories = db.Column(db.Float, default=0)
+#     total_protein = db.Column(db.Float, default=0)
+#     total_carbohydrates = db.Column(db.Float, default=0)
+#     total_fat = db.Column(db.Float, default=0)
+    
+#     # Relationships
+#     foods = db.relationship('MealFood', back_populates='meal', lazy='dynamic', cascade='all, delete-orphan')
+#     user = db.relationship('User', back_populates='meals')
     
     def __repr__(self):
         return f'<Meal {self.meal_name} ({self.meal_type}) - {self.timestamp}>'
@@ -454,7 +467,7 @@ class Meal(db.Model):
 # Add the missing MealFood class that's being imported in __init__.py
 class MealFood(db.Model):
     __tablename__ = 'meal_foods'
-    
+    __table_args__ = {'extend_existing': True} 
     id = db.Column(db.Integer, primary_key=True)
     meal_id = db.Column(db.Integer, db.ForeignKey('meals.id'), nullable=False)
     food_id = db.Column(db.Integer, db.ForeignKey('foods.id'), nullable=False)

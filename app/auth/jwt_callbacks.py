@@ -97,7 +97,8 @@ from functools import wraps
 from flask import request, g, jsonify
 import jwt
 from datetime import datetime, timedelta
-from app.models import User, db
+from app import db
+from app.models import User
 import uuid
 # Configuration values (should match your app.config)
 JWT_SECRET_KEY = 'your-secret-key'  # In production, get this from app.config
