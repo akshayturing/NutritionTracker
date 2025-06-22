@@ -231,13 +231,13 @@ def create_app(config_name='default'):
         app.logger.warning("Flask-CORS extension not available. CORS support disabled.")
     
     # Register blueprints
-    from app.routes.auth import auth_bp
+    #from app.routes.auth import auth_bp
     from app.routes.meals import nutrition_meals
     from app.routes.foods import foods_bp
     from app.routes.users import users_bp
     from app.routes.nutrition import nutrition_bp
     
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    #app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(nutrition_meals, url_prefix='/api/meals')
     app.register_blueprint(foods_bp, url_prefix='/api/foods')
     app.register_blueprint(users_bp, url_prefix='/api/users')

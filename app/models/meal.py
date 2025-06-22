@@ -288,3 +288,61 @@ class Meal(db.Model):
     
     def __repr__(self):
         return f"<Meal {self.id}: {self.meal_name} ({self.calories} calories)>"
+    
+    def calculate_nutrition_totals(self):
+        """Calculate and update total nutrition values for the meal"""
+        self.total_calories = 0
+        self.total_protein = 0
+        self.total_carbohydrates = 0
+        self.total_fat = 0
+        
+        for meal_food in self.foods:
+            food = Food.query.get(meal_food.food_id)
+            if food:
+                # Adjust based on portion size
+                portion_ratio = meal_food.portion_size / food.reference_portion_size
+                self.total_calories += food.calories * portion_ratio
+                self.total_protein += food.protein * portion_ratio
+                self.total_carbohydrates += food.carbohydrates * portion_ratio
+                self.total_fat += food.fat * portion_ratio
+        
+        # Round to 1 decimal place for better display
+        self.total_calories = round(self.total_calories, 1)
+        self.total_protein = round(self.total_protein, 1)
+        self.total_carbohydrates = round(self.total_carbohydrates, 1)
+        self.total_fat = round(self.total_fat, 1)
+
+    def to_dict(self, include_foods=True):
+        """Convert meal to dictionary for JSON serialization"""
+        result = {
+            'id': self.id,
+            'user_id': self.user_id,
+            'meal_name': self.meal_name,
+            'meal_type': self.meal_type,
+            'timestamp': self.timestamp.isoformat(),
+            'notes': self.notes,
+            'total_calories': self.total_calories,
+            'total_protein': self.total_protein,
+            'total_carbohydrates': self.total_carbohydrates,
+            'total_fat': self.total_fat
+        }
+        
+        if include_foods:
+            result['foods'] = []
+            for meal_food in self.foods:
+                food = Food.query.get(meal_food.food_id)
+                if food:
+                    portion_ratio = meal_food.portion_size / food.reference_portion_size
+                    food_data = {
+                        'food_id': food.id,
+                        'name': food.name,
+                        'portion_size': meal_food.portion_size,
+                        'portion_unit': meal_food.portion_unit,
+                        'calories': round(food.calories * portion_ratio, 1),
+                        'protein': round(food.protein * portion_ratio, 1),
+                        'carbohydrates': round(food.carbohydrates * portion_ratio, 1),
+                        'fat': round(food.fat * portion_ratio, 1)
+                    }
+                    result['foods'].append(food_data)
+        
+        return result
