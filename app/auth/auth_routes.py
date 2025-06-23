@@ -30,7 +30,7 @@ def auth_response(success=True, message=None, data=None, status_code=200):
         
     return jsonify(response), status_code
 
-@auth_bp.route('/register', methods=['POST'])
+@auth_bp.route('/register', methods=['POST'],  endpoint='auth_register')
 def register():
     """Register a new user and return JWT tokens."""
     try:
@@ -98,8 +98,8 @@ def register():
         db.session.commit()
         
         # Generate tokens
-        access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(identity=user.id)
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
         
         return auth_response(
             message="User registered successfully",
@@ -120,7 +120,7 @@ def register():
             status_code=500
         )
 
-@auth_bp.route('/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST'],  endpoint='auth_login')
 def login():
     """Login a user and return JWT tokens."""
     try:
@@ -146,8 +146,8 @@ def login():
             )
         
         # Create tokens
-        access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(identity=user.id)
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
         
         return auth_response(
             message="Login successful",
@@ -166,15 +166,17 @@ def login():
             status_code=500
         )
 
-@auth_bp.route('/refresh', methods=['POST'])
+@auth_bp.route('/refresh', methods=['POST'],  endpoint='auth_refresh')
 @jwt_required(refresh=True)
 def refresh():
     """Refresh access token using refresh token."""
     try:
         # Get user identity from refresh token
-        current_user_id = get_jwt_identity()
-        user = User.query.get(current_user_id)
-        
+        # current_user_id = get_jwt_identity()
+        current_user_id = int(get_jwt_identity())
+        # user = User.query.get(current_user_id)
+        user = db.session.get(User, current_user_id)
+        # print("REFRESH endpoint hit. User ID:", current_user_id)
         if not user:
             return auth_response(
                 success=False, 
@@ -183,8 +185,9 @@ def refresh():
             )
         
         # Create new access token
-        access_token = create_access_token(identity=current_user_id)
-        
+        access_token = create_access_token(identity=str(current_user_id))
+
+        print(access_token)
         return auth_response(
             message="Token refreshed successfully",
             data={
@@ -194,14 +197,17 @@ def refresh():
         )
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print("Error in refresh route:", str(e))
         current_app.logger.error(f"Token refresh error: {str(e)}")
         return auth_response(
-            success=False, 
-            message=f"Token refresh failed: {str(e)}", 
+            success=False,
+            message=f"Token refresh failed: {str(e)}",
             status_code=500
         )
 
-@auth_bp.route('/logout', methods=['POST'])
+@auth_bp.route('/logout', methods=['POST'],  endpoint='auth_logout')
 @jwt_required()
 def logout():
     """Logout by blacklisting the current token."""
@@ -230,7 +236,7 @@ def logout():
             status_code=500
         )
 
-@auth_bp.route('/verify-token', methods=['GET'])
+@auth_bp.route('/verify-token', methods=['GET'],  endpoint='auth_verify_token')
 def verify_token():
     """Verify if a token is valid without requiring a full endpoint."""
     try:

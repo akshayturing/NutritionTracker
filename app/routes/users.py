@@ -79,15 +79,16 @@ profile_schema = UserProfileSchema()
 # -----------------------------------------------
 # Protected routes (require authentication)
 # -----------------------------------------------
-
-@users_bp.route('/profile', methods=['GET'])
-@jwt_required
-def get_profile(current_user):
+@users_bp.route('/profile', methods=['GET'], endpoint='users_get_profile')
+@jwt_required()
+def get_profile():
     """Get the current user's profile"""
     try:
+        user_id = get_jwt_identity()
+        user = db.session.get(User, int(user_id))
         return jsonify({
             'success': True, 
-            'data': current_user.to_dict()
+            'data': user.to_dict()
         }), 200
     except Exception as e:
         logger.error(f"Error retrieving user profile: {str(e)}")
@@ -96,11 +97,63 @@ def get_profile(current_user):
             'message': 'Error retrieving profile'
         }), 500
 
-@users_bp.route('/profile1', methods=['PUT'])
-@jwt_required
-def update_profile(current_user):
+# @users_bp.route('/profile', methods=['PUT'], endpoint='users_update_profile')
+# @jwt_required()
+# def update_profile(current_user):
+#     """Update the current user's profile"""
+#     try:
+#         data = request.get_json()
+#         if not data:
+#             return jsonify({
+#                 'success': False, 
+#                 'message': 'No data provided'
+#             }), 400
+            
+#         # Validate input data
+#         errors = profile_schema.validate(data)
+#         if errors:
+#             return jsonify({
+#                 'success': False, 
+#                 'message': 'Validation error', 
+#                 'errors': errors
+#             }), 400
+        
+#         # Update user fields efficiently
+#         for field in profile_schema.fields.keys():
+#             if field in data:
+#                 setattr(current_user, field, data[field])
+        
+#         # Save changes
+#         db.session.commit()
+        
+#         return jsonify({
+#             'success': True, 
+#             'message': 'Profile updated successfully',
+#             'data': current_user.to_dict()
+#         }), 200
+            
+#     except ValidationError as e:
+#         return jsonify({
+#             'success': False, 
+#             'message': 'Validation error', 
+#             'errors': str(e)
+#         }), 400
+#     except Exception as e:
+#         db.session.rollback()
+#         logger.error(f"Error updating user profile: {str(e)}")
+#         return jsonify({
+#             'success': False, 
+#             'message': 'Error updating profile'
+#         }), 500
+
+@users_bp.route('/profile', methods=['PUT'], endpoint='users_update_profile')
+@jwt_required()
+def update_profile():
     """Update the current user's profile"""
     try:
+        user_id = get_jwt_identity()
+        user = db.session.get(User, int(user_id))
+
         data = request.get_json()
         if not data:
             return jsonify({
@@ -120,15 +173,14 @@ def update_profile(current_user):
         # Update user fields efficiently
         for field in profile_schema.fields.keys():
             if field in data:
-                setattr(current_user, field, data[field])
+                setattr(user, field, data[field])
         
-        # Save changes
         db.session.commit()
         
         return jsonify({
             'success': True, 
             'message': 'Profile updated successfully',
-            'data': current_user.to_dict()
+            'data': user.to_dict()
         }), 200
             
     except ValidationError as e:
@@ -145,11 +197,69 @@ def update_profile(current_user):
             'message': 'Error updating profile'
         }), 500
 
+
+# @users_bp.route('/nutritional-goals', methods=['PUT'])
+# @jwt_required()
+# def update_nutritional_goals(current_user):
+#     """Update just the nutritional goals for the current user"""
+#     try:
+#         data = request.get_json()
+#         if not data:
+#             return jsonify({
+#                 'success': False, 
+#                 'message': 'No data provided'
+#             }), 400
+            
+#         # Extract only nutritional goal fields
+#         nutrition_data = {
+#             k: v for k, v in data.items() 
+#             if k in ['calorie_goal', 'protein_goal', 'carbs_goal', 'fat_goal']
+#         }
+        
+#         # Validate nutritional goal data
+#         errors = profile_schema.validate(nutrition_data, partial=True)
+#         if errors:
+#             return jsonify({
+#                 'success': False, 
+#                 'message': 'Validation error', 
+#                 'errors': errors
+#             }), 400
+        
+#         # Update nutrition fields
+#         for field, value in nutrition_data.items():
+#             setattr(current_user, field, value)
+        
+#         # Save changes
+#         db.session.commit()
+        
+#         # Return just the nutritional goals
+#         nutrition_response = {
+#             field: getattr(current_user, field) 
+#             for field in ['calorie_goal', 'protein_goal', 'carbs_goal', 'fat_goal']
+#         }
+        
+#         return jsonify({
+#             'success': True, 
+#             'message': 'Nutritional goals updated',
+#             'data': nutrition_response
+#         }), 200
+            
+#     except Exception as e:
+#         db.session.rollback()
+#         logger.error(f"Error updating nutritional goals: {str(e)}")
+#         return jsonify({
+#             'success': False, 
+#             'message': 'Error updating nutritional goals'
+#         }), 500
+
 @users_bp.route('/nutritional-goals', methods=['PUT'])
-@jwt_required
-def update_nutritional_goals(current_user):
+@jwt_required()
+def update_nutritional_goals():
     """Update just the nutritional goals for the current user"""
     try:
+        user_id = get_jwt_identity()
+        user = db.session.get(User, int(user_id))
+
         data = request.get_json()
         if not data:
             return jsonify({
@@ -172,16 +282,13 @@ def update_nutritional_goals(current_user):
                 'errors': errors
             }), 400
         
-        # Update nutrition fields
         for field, value in nutrition_data.items():
-            setattr(current_user, field, value)
+            setattr(user, field, value)
         
-        # Save changes
         db.session.commit()
         
-        # Return just the nutritional goals
         nutrition_response = {
-            field: getattr(current_user, field) 
+            field: getattr(user, field) 
             for field in ['calorie_goal', 'protein_goal', 'carbs_goal', 'fat_goal']
         }
         
@@ -190,7 +297,7 @@ def update_nutritional_goals(current_user):
             'message': 'Nutritional goals updated',
             'data': nutrition_response
         }), 200
-            
+
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error updating nutritional goals: {str(e)}")
@@ -203,8 +310,8 @@ def update_nutritional_goals(current_user):
 # Admin routes (these would typically have admin permission checks)
 # -----------------------------------------------
 
-@users_bp.route('/admin/users', methods=['GET'])
-@jwt_required
+@users_bp.route('/admin/users', methods=['GET'], endpoint='users_get_admin_users')
+@jwt_required()
 def get_users(current_user):
     """Get list of all users (admin only)"""
     # In a real app, check if current_user is an admin
@@ -235,9 +342,9 @@ def get_users(current_user):
             'message': 'Error retrieving users'
         }), 500
 
-# @users_bp.route('/admin/users/<int:user_id>', methods=['GET'])
-# @jwt_required
-# def get_user(current_user, user_id):
+@users_bp.route('/admin/users/<int:user_id>', methods=['GET'], endpoint='users_get_admin_users_number')
+@jwt_required
+def get_user(current_user, user_id):
     """Get a specific user by ID (admin only)"""
     # In a real app, check if current_user is an admin
     try:
@@ -257,7 +364,7 @@ def get_users(current_user):
 # Public routes (user registration)
 # -----------------------------------------------
 
-@users_bp.route('/register', methods=['POST'])
+@users_bp.route('/register', methods=['POST'], endpoint='users_post_register')
 def create_user():
     """Register a new user"""
     try:

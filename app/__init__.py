@@ -257,20 +257,21 @@ from app.models import *  # This just loads your models
 from flask_jwt_extended import JWTManager
 import datetime
 import os
-
-def create_app(config_name='default'):
+def create_app(config_name='testing'):
     """Create and configure the Flask application."""
     app = Flask(__name__)
     
-
+    
+    os.environ['JWT_SECRET_KEY'] = 'test-secret-key'
     # Load configuration
     app_config = config[config_name]
     app.config.from_object(app_config)
+    jwt.init_app(app) 
     app_config.init_app(app)
-
+    
     # Initialize extensions
     db.init_app(app)
-    jwt.init_app(app) 
+    
     # Optional CORS support
     try:
         from flask_cors import CORS
@@ -282,15 +283,15 @@ def create_app(config_name='default'):
         
 
     # JWT Configuration
-    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'dev-secret-key')  # Change in production!
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=1)
-    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=30)
-    app.config['JWT_BLACKLIST_ENABLED'] = True
-    app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+    # app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'test-secret-key')  # Change in production!
+    # app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=1)
+    # app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=30)
+    # app.config['JWT_BLACKLIST_ENABLED'] = True
+    # app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 
     # Register JWT callbacks
-    from app.auth.jwt_callbacks import register_jwt_callbacks
-    register_jwt_callbacks(jwt)
+    # from app.auth.jwt_callbacks import register_jwt_callbacks
+    # register_jwt_callbacks(jwt)
 
     # Register blueprints
     from app.routes.meals import nutrition_meals
@@ -300,10 +301,10 @@ def create_app(config_name='default'):
     #from app.routes.nutrition import nutrition_bp
 
 
-    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(auth_bp, url_prefix='/auth')
     #app.register_blueprint(nutrition_meals, url_prefix='/api/meals')
     #app.register_blueprint(foods_bp, url_prefix='/api/foods')
-    # app.register_blueprint(users_bp, url_prefix='/api/users')
+    app.register_blueprint(users_bp, url_prefix='//users')
 
     #app.register_blueprint(nutrition_bp, url_prefix='/api/nutrition')
 
