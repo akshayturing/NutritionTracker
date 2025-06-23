@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.meal import Meal, MealFood
-from app.models.food import Food
+from app.models.food import FoodItem,FoodCategory,food_category_association
 from app import db
 from datetime import datetime
 import iso8601

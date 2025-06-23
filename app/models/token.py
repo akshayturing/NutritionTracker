@@ -74,7 +74,7 @@
 #         return token is not None and token.revoked
 
 """Token blacklist model for JWT token revocation."""
-from app import db
+from app.extensions import db
 from datetime import datetime
 
 class TokenBlacklist(db.Model):

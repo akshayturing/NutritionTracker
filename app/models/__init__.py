@@ -1,4 +1,9 @@
-from app.models.user import User
-from app.models.token_blacklist import TokenBlacklist
-from app.models.food import Food, UserCustomFood
-from app.models.meal import Meal, MealFood
+from app.extensions import db
+
+# Import all models so they register with metadata
+from .user import User
+from .meal import Meal
+from .meal import MealFood
+from .meal import MealItem
+from .food import FoodItem
+# from .user_custom_food import UserCustomFood

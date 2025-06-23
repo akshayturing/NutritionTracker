@@ -1,10 +1,40 @@
-from models.food_database import db, FoodItem, Nutrient, NutrientValue, FoodCategory
-from flask import Flask
-import csv
-import os
+"""
+Database Initialization Script for Nutrition Tracking System
 
-def create_nutrients():
+This script creates and initializes the SQLite database for the nutrition tracking application,
+including tables for users, food items, nutrients, and their relationships.
+
+Usage:
+    python init_database.py
+
+The script will create a SQLite database file in the current directory or specified location
+and populate it with standard nutrients, food categories, and sample data.
+"""
+
+import os
+import csv
+import sqlite3
+import argparse
+from pathlib import Path
+from flask import Flask
+
+# ===== Database Configuration =====
+def configure_app(db_path):
+    """Configure Flask app with SQLAlchemy database settings"""
+    app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    return app
+
+# ===== Database Initialization Functions =====
+def create_nutrients(db_session):
     """Create standard nutrients in the database"""
+    from app.models.food_database import Nutrient
+    
+    if Nutrient.query.count() > 0:
+        print("Nutrients already exist in the database. Skipping creation.")
+        return
+
     nutrients = [
         # Macronutrients
         ('ENERC_KCAL', 'Energy', 'kcal', 'Macronutrients', 1),
@@ -52,13 +82,19 @@ def create_nutrients():
             category=category,
             display_order=display_order
         )
-        db.session.add(nutrient)
+        db_session.add(nutrient)
     
-    db.session.commit()
+    db_session.commit()
     print(f"Created {len(nutrients)} nutrients")
 
-def create_categories():
+def create_categories(db_session):
     """Create standard food categories"""
+    from app.models.food_database import FoodCategory
+    
+    if FoodCategory.query.count() > 0:
+        print("Food categories already exist in the database. Skipping creation.")
+        return
+
     categories = [
         ('Fruits', 'Fresh, frozen, canned, and dried fruits'),
         ('Vegetables', 'Fresh, frozen, canned, and dried vegetables'),
@@ -77,13 +113,19 @@ def create_categories():
     
     for name, description in categories:
         category = FoodCategory(name=name, description=description)
-        db.session.add(category)
+        db_session.add(category)
     
-    db.session.commit()
-    print(f"Created {len(categories)} categories")
+    db_session.commit()
+    print(f"Created {len(categories)} food categories")
 
-def create_sample_foods():
+def create_sample_foods(db_session):
     """Create sample food items for demonstration"""
+    from app.models.food_database import FoodItem, Nutrient, NutrientValue, FoodCategory
+    
+    if FoodItem.query.count() > 0:
+        print("Food items already exist in the database. Skipping creation.")
+        return
+
     # Get nutrients and categories for reference
     nutrients = {n.code: n for n in Nutrient.query.all()}
     categories = {c.name: c for c in FoodCategory.query.all()}
@@ -219,31 +261,36 @@ def create_sample_foods():
                 )
                 food.nutrients.append(nutrient_value)
         
-        db.session.add(food)
+        db_session.add(food)
     
-    db.session.commit()
-    print(f"Created {len(sample_foods)} sample foods")
+    db_session.commit()
+    print(f"Created {len(sample_foods)} sample food items")
 
-# def init_database(app):
-#     """Initialize the database with default data"""
-#     with app.app_context():
-#         # Create tables
-#         db.create_all()
+def create_sample_user(db_session):
+    """Create a sample user for testing"""
+    from app.models import User
+    
+    # Check if user already exists
+    if User.query.filter_by(username='testuser').first() is not None:
+        print("Sample user already exists. Skipping creation.")
+        return
         
-#         # Check if database is already populated
-#         if Nutrient.query.count() == 0:
-#             create_nutrients()
-        
-#         if FoodCategory.query.count() == 0:
-#             create_categories()
-        
-#         if FoodItem.query.count() == 0:
-#             create_sample_foods()
-            
-#         print("Database initialized successfully!")
+    user = User(
+        username='testuser',
+        email='test@example.com'
+    )
+    # Set password using the User model's method to properly hash it
+    user.set_password('password123')
+    
+    db_session.add(user)
+    db_session.commit()
+    print("Created sample user 'testuser' with password 'password123'")
 
 def import_from_csv(app, csv_file):
     """Import food data from a CSV file"""
+    from app.models.food_database import FoodItem, Nutrient, NutrientValue, FoodCategory
+    from app.models import db
+    
     with app.app_context():
         # Get nutrients and categories for reference
         nutrients = {n.code: n for n in Nutrient.query.all()}
@@ -325,57 +372,65 @@ def import_from_csv(app, csv_file):
         db.session.commit()
         print(f"Successfully imported {foods_added} foods from {csv_file}")
 
-if __name__ == '__main__':
-    # Create a Flask app context for database operations
-    app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food_nutrition.db'
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
-    # Initialize the database
-    db.init_app(app)
-    
-    # Run the initialization
-    init_database(app)
-    
-    # Optionally import from CSV if provided
-    csv_path = os.environ.get('FOOD_CSV_PATH')
-    if csv_path and os.path.exists(csv_path):
-        import_from_csv(app, csv_path)
+def ensure_directory_exists(path):
+    """Ensure that directory exists, create it if necessary"""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    print(f"Ensured directory exists: {os.path.dirname(path)}")
 
-
-from app.models import db, FoodItem, Nutrient, NutrientValue, FoodCategory, User
-from flask import Flask
-
-def create_sample_user():
-    """Create a sample user for testing"""
-    # Check if user already exists
-    if User.query.filter_by(username='testuser').first() is None:
-        user = User(
-            username='testuser',
-            email='test@example.com',
-            password_hash='sample_hashed_password'  # In a real app, use proper password hashing
-        )
-        db.session.add(user)
-        db.session.commit()
-        print("Created sample user")
-
-def init_database(app):
+def init_database(app, csv_file=None):
     """Initialize the database with default data"""
+    from app.models import db
+    
     with app.app_context():
         # Create tables
         db.create_all()
+        print("Created database tables")
         
-        # Check if database is already populated
-        if Nutrient.query.count() == 0:
-            create_nutrients()
+        # Create standard data
+        create_nutrients(db.session)
+        create_categories(db.session)
+        create_sample_foods(db.session)
+        create_sample_user(db.session)
         
-        if FoodCategory.query.count() == 0:
-            create_categories()
-        
-        if FoodItem.query.count() == 0:
-            create_sample_foods()
-        
-        # Create sample user if needed
-        create_sample_user()
+        # Import from CSV if provided
+        if csv_file and os.path.exists(csv_file):
+            import_from_csv(app, csv_file)
             
         print("Database initialized successfully!")
+
+def parse_arguments():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(description='Initialize Nutrition Tracker Database')
+    parser.add_argument('--db-path', type=str, default='nutrition.db',
+                        help='Path where the SQLite database file should be created')
+    parser.add_argument('--csv-file', type=str, 
+                        help='Optional CSV file with food data to import')
+    return parser.parse_args()
+
+# ===== Main Function =====
+def main():
+    """Main function to initialize the database"""
+    args = parse_arguments()
+    
+    # Get absolute path for database
+    db_path = os.path.abspath(args.db_path)
+    
+    # Make sure the directory exists
+    ensure_directory_exists(db_path)
+    
+    # Create and configure Flask app
+    app = configure_app(db_path)
+    
+    # Initialize the database models
+    from app.models import db
+    db.init_app(app)
+    
+    # Initialize database with data
+    csv_file = args.csv_file or os.environ.get('FOOD_CSV_PATH')
+    init_database(app, csv_file)
+    
+    print(f"Database created at: {db_path}")
+    return 0
+
+if __name__ == '__main__':
+    exit(main())
