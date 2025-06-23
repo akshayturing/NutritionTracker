@@ -46,7 +46,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from marshmallow import Schema, fields, validate, ValidationError
 from app.models.user import User, db
-from app.auth.jwt_callbacks import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy.exc import IntegrityError
 import logging
 
@@ -96,7 +96,7 @@ def get_profile(current_user):
             'message': 'Error retrieving profile'
         }), 500
 
-@users_bp.route('/profile', methods=['PUT'])
+@users_bp.route('/profile1', methods=['PUT'])
 @jwt_required
 def update_profile(current_user):
     """Update the current user's profile"""
@@ -235,9 +235,9 @@ def get_users(current_user):
             'message': 'Error retrieving users'
         }), 500
 
-@users_bp.route('/admin/users/<int:user_id>', methods=['GET'])
-@jwt_required
-def get_user(current_user, user_id):
+# @users_bp.route('/admin/users/<int:user_id>', methods=['GET'])
+# @jwt_required
+# def get_user(current_user, user_id):
     """Get a specific user by ID (admin only)"""
     # In a real app, check if current_user is an admin
     try:

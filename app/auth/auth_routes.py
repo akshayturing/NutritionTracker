@@ -11,8 +11,7 @@ from flask_jwt_extended import (
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 
-from app.extensions import db
-from app import jwt
+from app.extensions import db,jwt
 from app.models.user import User
 from app.models.token import TokenBlacklist
 
@@ -36,7 +35,8 @@ def register():
     """Register a new user and return JWT tokens."""
     try:
         data = request.get_json()
-        
+        print(data)
+        print('cominhg gere')
         # Validate required fields
         required_fields = ['email', 'password', 'name']
         for field in required_fields:
@@ -58,17 +58,32 @@ def register():
         # Create new user with hashed password
         password_hash = generate_password_hash(data['password'])
         
+        
+        # user = User(
+        #     name=data['name'],
+        #     email=data['email'],
+        #     password_hash=password_hash,
+        #     age=data.get('age'),
+        #     weight=data.get('weight'),
+        #     height=data.get('height'),
+        #     gender=data.get('gender'),
+        #     activity_level=data.get('activity_level', 'moderate')
+        # )
         user = User(
-            email=data['email'],
-            password_hash=password_hash,
             name=data['name'],
+            email=data['email'],
+            password=data['password'],  # ✅ pass raw password here
             age=data.get('age'),
             weight=data.get('weight'),
             height=data.get('height'),
             gender=data.get('gender'),
-            activity_level=data.get('activity_level', 'moderate')
+            activity_level=data.get('activity_level', 'moderate'),
+            calorie_goal=data.get('calorie_goal'),
+            protein_goal=data.get('protein_goal'),
+            carbs_goal=data.get('carbs_goal'),
+            fat_goal=data.get('fat_goal')
         )
-        
+        print("coming here 2")
         # Add nutritional goals if provided
         if 'calorie_goal' in data:
             user.calorie_goal = data['calorie_goal']

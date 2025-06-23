@@ -251,7 +251,7 @@
 #     return app
 
 from flask import Flask
-from app.extensions import db  # Now points to db from models/__init__.py
+from app.extensions import db,jwt  # Now points to db from models/__init__.py
 from app.config import config
 from app.models import *  # This just loads your models
 from flask_jwt_extended import JWTManager
@@ -270,7 +270,7 @@ def create_app(config_name='default'):
 
     # Initialize extensions
     db.init_app(app)
-
+    jwt.init_app(app) 
     # Optional CORS support
     try:
         from flask_cors import CORS
@@ -280,8 +280,6 @@ def create_app(config_name='default'):
 
     
         
-    # Initialize JWT
-    jwt = JWTManager(app)
 
     # JWT Configuration
     app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'dev-secret-key')  # Change in production!
@@ -298,14 +296,14 @@ def create_app(config_name='default'):
     from app.routes.meals import nutrition_meals
     from app.routes.foods import foods_bp
     from app.routes.users import users_bp
-    from app.routes.auth import auth_bp
+    from app.auth.auth_routes import auth_bp
     #from app.routes.nutrition import nutrition_bp
 
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
-    app.register_blueprint(nutrition_meals, url_prefix='/api/meals')
-    app.register_blueprint(foods_bp, url_prefix='/api/foods')
-    app.register_blueprint(users_bp, url_prefix='/api/users')
+    #app.register_blueprint(nutrition_meals, url_prefix='/api/meals')
+    #app.register_blueprint(foods_bp, url_prefix='/api/foods')
+    # app.register_blueprint(users_bp, url_prefix='/api/users')
 
     #app.register_blueprint(nutrition_bp, url_prefix='/api/nutrition')
 
