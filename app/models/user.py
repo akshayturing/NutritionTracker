@@ -265,7 +265,7 @@ class User(db.Model):
     fat_goal = db.Column(db.Integer)
 
     meals = db.relationship('Meal', back_populates='user', lazy='dynamic')
-    custom_foods = db.relationship('UserCustomFood', back_populates='user', cascade='all, delete-orphan')
+    # custom_foods = db.relationship('UserCustomFood', back_populates='user', cascade='all, delete-orphan')
 
     def __init__(self, name, email, password, **kwargs):
         self.name = name

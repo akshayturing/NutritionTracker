@@ -254,10 +254,14 @@ from flask import Flask
 from app.extensions import db  # Now points to db from models/__init__.py
 from app.config import config
 from app.models import *  # This just loads your models
+from flask_jwt_extended import JWTManager
+import datetime
+import os
 
 def create_app(config_name='default'):
     """Create and configure the Flask application."""
     app = Flask(__name__)
+    
 
     # Load configuration
     app_config = config[config_name]
@@ -274,15 +278,35 @@ def create_app(config_name='default'):
     except ImportError:
         app.logger.warning("Flask-CORS not available")
 
+    
+        
+    # Initialize JWT
+    jwt = JWTManager(app)
+
+    # JWT Configuration
+    app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY', 'dev-secret-key')  # Change in production!
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = datetime.timedelta(hours=1)
+    app.config['JWT_REFRESH_TOKEN_EXPIRES'] = datetime.timedelta(days=30)
+    app.config['JWT_BLACKLIST_ENABLED'] = True
+    app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+
+    # Register JWT callbacks
+    from app.auth.jwt_callbacks import register_jwt_callbacks
+    register_jwt_callbacks(jwt)
+
     # Register blueprints
     from app.routes.meals import nutrition_meals
     from app.routes.foods import foods_bp
     from app.routes.users import users_bp
+    from app.routes.auth import auth_bp
     #from app.routes.nutrition import nutrition_bp
 
+
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(nutrition_meals, url_prefix='/api/meals')
     app.register_blueprint(foods_bp, url_prefix='/api/foods')
     app.register_blueprint(users_bp, url_prefix='/api/users')
+
     #app.register_blueprint(nutrition_bp, url_prefix='/api/nutrition')
 
     return app

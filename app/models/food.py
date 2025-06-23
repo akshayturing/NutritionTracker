@@ -263,7 +263,7 @@ class FoodCategory(db.Model):
     name = db.Column(db.String(255), nullable=False, unique=True)
     description = db.Column(db.Text)
     foods = db.relationship('FoodItem', secondary='food_category_association', back_populates='categories')
-    meal_foods = db.relationship("MealFood", back_populates="food", cascade="all, delete-orphan")
+    # meal_foods = db.relationship("MealFood", back_populates="food", cascade="all, delete-orphan")
 
 
 class FoodItem(db.Model):
@@ -276,6 +276,7 @@ class FoodItem(db.Model):
 
     # Relationships
     categories = db.relationship('FoodCategory', secondary='food_category_association', back_populates='foods')
+    meal_foods = db.relationship('MealFood', back_populates='food', cascade='all, delete-orphan')
 
     @property
     def macronutrients(self):

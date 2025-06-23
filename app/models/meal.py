@@ -517,7 +517,7 @@ class MealFood(db.Model):
     portion_unit = db.Column(db.String(50), default='serving')
 
     meal = db.relationship('Meal', back_populates='foods')
-    food = db.relationship('Food', back_populates='meal_foods')
+    food = db.relationship('FoodItem', back_populates='meal_foods')
 
     def __repr__(self):
         return f'<MealFood {self.id}: Meal {self.meal_id} - Food {self.food_id}>'
