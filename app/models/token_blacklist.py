@@ -4,9 +4,13 @@ from datetime import datetime
 class TokenBlacklist(db.Model):
     """Model for storing blacklisted JWT tokens"""
     __tablename__ = 'token_blacklist'
-    __table_args__ = {'extend_existing': True} 
+    __table_args__ = {
+        'extend_existing': True,
+        'sqlite_autoincrement': True,
+    }
     id = db.Column(db.Integer, primary_key=True)
-    jti = db.Column(db.String(36), nullable=False, unique=True, index=True)
+    # jti = db.Column(db.String(36), nullable=False, unique=True, index=True)
+    jti = db.Column(db.String(36), unique=True,  index=False) 
     token_type = db.Column(db.String(10), nullable=False)  # 'access' or 'refresh'
     user_id = db.Column(db.Integer, nullable=True)  # Optional reference to user
     blacklisted_on = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)

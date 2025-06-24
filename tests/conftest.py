@@ -1044,7 +1044,7 @@ from app import create_app
 from app.models import db as _db
 from app.models.user import User
 from app.models.meal import Meal 
-from app.models.food_item import FoodItem
+from app.models.food import FoodItem
 from app.models.token_blacklist import TokenBlacklist
 
 @pytest.fixture(scope='session')
@@ -1062,6 +1062,7 @@ def app():
 def db(app):
     """Create and configure a database for testing."""
     # Create the database and tables
+    _db.drop_all() 
     _db.create_all()
     
     yield _db
