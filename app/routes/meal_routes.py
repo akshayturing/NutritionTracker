@@ -15,10 +15,10 @@ def get_meals():
         meals = Meal.query.all()
     return jsonify([meal.to_dict() for meal in meals])
 
-@meal_bp.route('/<int:id>', methods=['GET'])
-def get_meal(id):
-    meal = Meal.query.get_or_404(id)
-    return jsonify(meal.to_dict())
+# @meal_bp.route('/<int:id>', methods=['GET'])
+# def get_meal(id):
+#     meal = Meal.query.get_or_404(id)
+#     return jsonify(meal.to_dict())
 
 # @meal_bp.route('/', methods=['POST'])
 # def create_meal():

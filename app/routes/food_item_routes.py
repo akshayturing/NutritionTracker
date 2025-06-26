@@ -17,10 +17,10 @@ def get_food_items():
     items = query.all()
     return jsonify([item.to_dict() for item in items])
 
-@food_item_bp.route('/<int:id>', methods=['GET'])
-def get_food_item(id):
-    item = FoodItem.query.get_or_404(id)
-    return jsonify(item.to_dict())
+# @food_item_bp.route('/<int:id>', methods=['GET'])
+# def get_food_item(id):
+#     item = FoodItem.query.get_or_404(id)
+#     return jsonify(item.to_dict())
 
 @food_item_bp.route('/', methods=['POST'])
 def create_food_item():

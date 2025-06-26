@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.meal import Meal, MealFood
-from app.models.food import Food
+from app.models.food import FoodItem,FoodCategory,food_category_association
 from app import db
 from datetime import datetime
 import iso8601
@@ -102,24 +102,24 @@ def get_meals():
     
     return jsonify(result), 200
 
-@nutrition_meals.route('/api/meals/<int:meal_id>', methods=['GET'])
-@jwt_required()
-def get_meal(meal_id):
-    """Get a specific meal by ID"""
-    user_id = get_jwt_identity()
+# @nutrition_meals.route('/api/meals/<int:meal_id>', methods=['GET'])
+# @jwt_required()
+# def get_meal(meal_id):
+#     """Get a specific meal by ID"""
+#     user_id = get_jwt_identity()
     
-    meal = Meal.query.filter_by(id=meal_id).first()
+#     meal = Meal.query.filter_by(id=meal_id).first()
     
-    if not meal:
-        return jsonify({'error': {'code': 'RESOURCE_NOT_FOUND', 
-                                 'message': 'Meal not found'}}), 404
+#     if not meal:
+#         return jsonify({'error': {'code': 'RESOURCE_NOT_FOUND', 
+#                                  'message': 'Meal not found'}}), 404
     
-    # Ensure user owns this meal
-    if meal.user_id != user_id:
-        return jsonify({'error': {'code': 'PERMISSION_DENIED', 
-                                 'message': 'You do not have permission to view this meal'}}), 403
+#     # Ensure user owns this meal
+#     if meal.user_id != user_id:
+#         return jsonify({'error': {'code': 'PERMISSION_DENIED', 
+#                                  'message': 'You do not have permission to view this meal'}}), 403
     
-    return jsonify(meal.to_dict(include_foods=True)), 200
+#     return jsonify(meal.to_dict(include_foods=True)), 200
 
 @nutrition_meals.route('/api/meals', methods=['POST'])
 @jwt_required()
@@ -296,9 +296,9 @@ def update_meal(meal_id):
         return jsonify({'error': {'code': 'INTERNAL_ERROR', 
                                  'message': 'An error occurred while updating the meal'}}), 500
 
-@nutrition_meals.route('/api/meals/<int:meal_id>', methods=['DELETE'])
-@jwt_required()
-def delete_meal(meal_id):
+# @nutrition_meals.route('/api/meals/<int:meal_id>', methods=['DELETE'])
+# @jwt_required()
+# def delete_meal(meal_id):
     """Delete a meal"""
     user_id = get_jwt_identity()
     
