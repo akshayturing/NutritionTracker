@@ -105,9 +105,13 @@ from app.extensions import db
 class TokenBlacklist(db.Model):
     """Stores blacklisted JWT tokens for logout functionality."""
     __tablename__ = 'token_blacklist'
-    
+    __table_args__ = {
+        'extend_existing': True,
+        'sqlite_autoincrement': True,
+    }
     id = db.Column(db.Integer, primary_key=True)
-    jti = db.Column(db.String(36), nullable=False, unique=True, index=True)
+    # jti = db.Column(db.String(36), nullable=False, unique=True, index=True)
+    jti = db.Column(db.String(36), unique=True, index=False) 
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     expires_at = db.Column(db.DateTime, nullable=True)
     
